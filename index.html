@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IMC y Cachipún | Cristian Alvarez</title>
+  <link rel="stylesheet" href="../../assets/css/estilos.css">
+  <style>
+    .demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-top:1.5rem}
+    .panel{background:#fff;border:1px solid var(--suave);border-radius:6px;padding:1.25rem}
+    label{display:block;font-weight:600;margin:.6rem 0 .2rem}
+    input{width:100%;padding:.55rem .7rem;font:inherit;border:2px solid var(--suave);border-radius:6px}
+    button{font:inherit;font-weight:600;padding:.55rem 1rem;margin:.75rem .4rem 0 0;border:2px solid var(--tinta);background:var(--tinta);color:var(--fondo);border-radius:999px;cursor:pointer}
+    button:hover{background:var(--linea);border-color:var(--linea)}
+    .resultado{min-height:2.6em;margin-top:1rem;font-weight:600}
+    pre{background:var(--tinta);color:var(--fondo);padding:1rem;border-radius:6px;overflow-x:auto;font-size:.95rem}
+  </style>
+</head>
+<body>
+  <header class="cabecera"><div class="contenedor"><a class="marca" href="../../index.html">← Cristian Alvarez</a></div></header>
+  <main class="contenedor" style="padding:2.5rem 0">
+    <h1 style="font-size:clamp(2rem,5vw,3rem)">IMC y Cachipún</h1>
+    <p>Los dos programas originales están escritos en Python y se ejecutan por terminal. Aquí tienes una versión web para probarlos sin instalar nada.</p>
+
+    <div class="demo">
+      <section class="panel" aria-labelledby="t-imc">
+        <h2 id="t-imc" style="font-size:1.4rem">Calculadora de IMC</h2>
+        <label for="peso">Peso (kg)</label>
+        <input id="peso" type="number" min="1" step="0.1" value="70">
+        <label for="altura">Altura (m)</label>
+        <input id="altura" type="number" min="0.5" step="0.01" value="1.75">
+        <button id="calcular" type="button">Calcular IMC</button>
+        <p class="resultado" id="res-imc" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="t-cachi">
+        <h2 id="t-cachi" style="font-size:1.4rem">Cachipún</h2>
+        <p>Elige una jugada:</p>
+        <button type="button" data-jugada="piedra">Piedra</button>
+        <button type="button" data-jugada="papel">Papel</button>
+        <button type="button" data-jugada="tijera">Tijera</button>
+        <p class="resultado" id="res-cachi" aria-live="polite"></p>
+        <p id="marcador">Ganadas: 0 · Perdidas: 0 · Empates: 0</p>
+      </section>
+    </div>
+
+    <h2 style="margin-top:2.5rem;font-size:1.4rem">Cómo ejecutarlos en Python</h2>
+<pre>python imc.py 70 1.75
+python cachipun.py papel</pre>
+    <p><a href="imc.py">Ver imc.py</a> · <a href="cachipun.py">Ver cachipun.py</a></p>
+  </main>
+
+  <script>
+    function clasificar(imc){
+      if (imc < 18.5) return "bajo peso";
+      if (imc < 25) return "peso normal";
+      if (imc < 30) return "sobrepeso";
+      return "obesidad";
+    }
+    document.getElementById("calcular").addEventListener("click", function(){
+      var peso = parseFloat(document.getElementById("peso").value);
+      var altura = parseFloat(document.getElementById("altura").value);
+      var salida = document.getElementById("res-imc");
+      if (!(peso > 0) || !(altura > 0)) {
+        salida.textContent = "Ingresa un peso y una altura mayores que cero.";
+        return;
+      }
+      var imc = peso / (altura * altura);
+      salida.textContent = "Tu IMC es " + imc.toFixed(1) + ": " + clasificar(imc) + ".";
+    });
+
+    var OPCIONES = ["piedra", "papel", "tijera"];
+    var GANA_A = { piedra: "tijera", papel: "piedra", tijera: "papel" };
+    var puntos = { g: 0, p: 0, e: 0 };
+    document.querySelectorAll("[data-jugada]").forEach(function(boton){
+      boton.addEventListener("click", function(){
+        var jugador = boton.dataset.jugada;
+        var pc = OPCIONES[Math.floor(Math.random() * 3)];
+        var texto;
+        if (jugador === pc) { puntos.e++; texto = "Empate."; }
+        else if (GANA_A[jugador] === pc) { puntos.g++; texto = "¡Ganaste!"; }
+        else { puntos.p++; texto = "Perdiste. ¡Revancha!"; }
+        document.getElementById("res-cachi").textContent =
+          "Tú: " + jugador + ". Computador: " + pc + ". " + texto;
+        document.getElementById("marcador").textContent =
+          "Ganadas: " + puntos.g + " · Perdidas: " + puntos.p + " · Empates: " + puntos.e;
+      });
+    });
+  </script>
+</body>
+</html>
